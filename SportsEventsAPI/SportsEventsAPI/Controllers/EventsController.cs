@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SportsEventsAPI.Models;
@@ -11,7 +10,7 @@ namespace SportsEventsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventsController : Controller
+    public class EventsController : ControllerBase
     {
         private readonly EventService _eventService;
 
@@ -24,7 +23,7 @@ namespace SportsEventsAPI.Controllers
         public ActionResult<List<Event>> Get() => _eventService.Get();
 
         [HttpGet("{id:length(24)}", Name = "GetEvent")]
-        //[HttpGet("~/api/sports/{sportId}/[controller]/{id}")]
+        [HttpGet("~/api/sports/{sportId}/[controller]/{id}")]
         public ActionResult<Event> Get(string id)
         {
             var @event = _eventService.Get(id);
@@ -37,16 +36,28 @@ namespace SportsEventsAPI.Controllers
             return @event;
         }
 
+        [HttpGet("~/api/sports/{sportId}/[controller]")]
+        public ActionResult<List<Event>> GetEventsBySport(string sportId) => 
+            _eventService.GetEventsBySport(sportId);
+
         // POST: Events/Create
         [HttpPost]
-        public ActionResult Create(Event @event)
+        [HttpPost("~/api/sports/{sportId}/[controller]")]
+        public ActionResult Create(Event @event, string sportId)
         {
+            if (@event == null)
+                return BadRequest();
+
+            @event.SportId = sportId;
+            @event.ParticipantIds = new List<string>();
+
             _eventService.Create(@event);
 
             return CreatedAtRoute("GetEvent", new { id = @event.Id.ToString() }, @event);
         }
 
         [HttpPut("{id:length(24)}")]
+        [HttpPut("~/api/sports/{sportId}/[controller]/{id}")]
         public IActionResult Update(string id, Event eventIn)
         {
             var @event = _eventService.Get(id);
@@ -56,12 +67,18 @@ namespace SportsEventsAPI.Controllers
                 return NotFound();
             }
 
+            if (eventIn == null)
+                return BadRequest();
+            else
+                eventIn.Id = id;
+
             _eventService.Update(id, eventIn);
 
             return NoContent();
         }
 
         [HttpDelete("{id:length(24)}")]
+        [HttpDelete("~/api/sports/{sportId}/[controller]/{id}")]
         public IActionResult Delete(string id)
         {
             var @event = _eventService.Get(id);

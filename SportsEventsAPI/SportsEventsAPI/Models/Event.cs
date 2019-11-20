@@ -10,10 +10,10 @@ namespace SportsEventsAPI.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        [BsonElement("Name")]
-        public string EventName { get; set; }
+        //[BsonElement("Title")]
+        public string Name { get; set; }
         public string City { get; set; }
-        public string Category { get; set; }
-        public int MaxPlayers { get; set; }
+        public string SportId { get; set; }
+        public List<string> ParticipantIds { get; set; }
     }
 }

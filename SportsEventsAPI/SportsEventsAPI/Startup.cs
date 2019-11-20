@@ -32,15 +32,16 @@ namespace SportsEventsAPI
             services.Configure<SportsEventsDatabaseSettings>(
                 Configuration.GetSection(nameof(SportsEventsDatabaseSettings)));
 
-            services.AddSingleton<ISportsEventsDatabaseSettings>(sp =>
+            services.AddSingleton<SportsEventsDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<SportsEventsDatabaseSettings>>().Value);
 
-            //services.AddSingleton<SportService>();
+            services.AddSingleton<SportService>();
             services.AddSingleton<EventService>();
             //services.AddSingleton<ParticipantService>();
-            //services.AddSingleton<UserService>();
+            services.AddSingleton<UserService>();
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(options => options.UseMemberCasing());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
