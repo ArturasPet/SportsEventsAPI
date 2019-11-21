@@ -76,13 +76,18 @@ namespace SportsEventsAPI.Controllers
         public IActionResult Delete(string id)
         {
             var sport = _sportService.Get(id);
+            List<Event> relevantEvents;
 
             if (sport == null)
             {
                 return NotFound();
             }
 
-
+            relevantEvents = _eventService.GetEventsBySport(id);   
+            foreach (Event @event in relevantEvents)
+            {
+                _eventService.Remove(@event.Id);
+            }
             
             _sportService.Remove(sport.Id);
 

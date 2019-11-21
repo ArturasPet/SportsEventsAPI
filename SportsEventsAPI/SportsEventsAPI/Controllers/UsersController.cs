@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using SportsEventsAPI.Models;
 using SportsEventsAPI.Services;
 
 namespace SportsEventsAPI.Controllers
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -22,8 +23,20 @@ namespace SportsEventsAPI.Controllers
             _eventService = eventService;
         }
 
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody]AuthenticateModel model)
+        {
+            var user = _userService.Authenticate(model.Username, model.Password);
+
+            if (user == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+
+            return Ok(user);
+        }
+
         [HttpGet]
-        public ActionResult<List<User>> Get() => _userService.Get();
+        public ActionResult<List<User>> Get() => _userService.GetAll();
 
         [HttpGet("{id:length(24)}", Name = "GetUser")]
         [HttpGet("~/api/sports/{sportId}/events/{eventId}/[controller]/{id}")]
